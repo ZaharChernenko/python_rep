@@ -149,7 +149,7 @@ class DiscreteRandomVars:
             start_row += 1
             sheet[f"A{start_row}"].value = self.row_name
             start_row += 1
-            sheet[f"A{start_row}"].value = f"P({self.row_name}|{sheet[f"A{start_row - 2}"].value})"
+            sheet[f"A{start_row}"].value = f"P({self.row_name}|{sheet[f'A{start_row - 2}'].value})"
 
             for cell in range(start_row - 2, start_row + 1):
                 sheet[f"A{cell}"].fill = PatternFill(patternType="solid", fgColor="8497b0")

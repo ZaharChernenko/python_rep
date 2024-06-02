@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "statistics-1"
+version = "1"
+description = ""
+authors = ["Zahar Chernenko <zaharchernenko35@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pandas = "^2.2.2"
+numpy = "^1.26.4"
+openpyxl = "^3.1.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

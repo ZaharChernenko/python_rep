@@ -1,0 +1,20 @@
+[
+	{
+		"time": "17:05",
+		"name": "Actimel Натуральный",
+		"weight": 1233.0,
+		"calories": 875.4,
+		"protein": 34.5,
+		"fat": 19.7,
+		"carb": 129.5
+	},
+	{
+		"time": "17:07",
+		"name": "Каша",
+		"weight": 100,
+		"calories": 282.0,
+		"protein": 10.0,
+		"fat": 2.0,
+		"carb": 56.0
+	}
+]
