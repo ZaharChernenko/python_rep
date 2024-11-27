@@ -62,7 +62,7 @@ class PatternBuilder:
 
 
 if __name__ == "__main__":
-    test_builder = PatternBuilder("pattern.json")
+    test_builder = PatternBuilder("tests/pattern.json")
     result: dict[str, TextData] = test_builder(
         {
             "Пол": "м",
