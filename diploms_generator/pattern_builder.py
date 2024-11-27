@@ -2,11 +2,13 @@ import json
 import re
 from typing import NamedTuple, Optional
 
+from docx.shared import Pt, RGBColor
+
 
 class TextData(NamedTuple):
     text: str
-    font_size: float
-    font_color: tuple[int, int, int]
+    font_size: Pt
+    font_color: RGBColor
     is_bold: bool
     is_italic: bool
 
@@ -18,7 +20,7 @@ class PatternBuilderException(Exception):
 
 class PatternBuilder:
     def __init__(self, file_path: str):
-        with open(file_path) as fin:
+        with open(file_path, encoding="utf-8") as fin:
             pattern: list[dict] = json.load(fin)
         for el in pattern:
             if el.get("текст", None) is None and el.get("зависит от", None) is None:
@@ -52,8 +54,8 @@ class PatternBuilder:
 
             result[type_of_text] = TextData(
                 text=text,
-                font_size=el.get("размер шрифта", 12),
-                font_color=el.get("цвет шрифта", (0, 0, 0)),
+                font_size=Pt(el.get("размер шрифта", 12)),
+                font_color=RGBColor(*el.get("цвет шрифта", (0, 0, 0))),
                 is_bold=el.get("жирный", False),
                 is_italic=el.get("курсивный", False),
             )
@@ -63,7 +65,7 @@ class PatternBuilder:
 
 if __name__ == "__main__":
     test_builder = PatternBuilder("tests/pattern.json")
-    result: dict[str, TextData] = test_builder(
+    test_result: dict[str, TextData] = test_builder(
         {
             "Пол": "м",
             "Курс": 1,
@@ -75,5 +77,5 @@ if __name__ == "__main__":
             "Научный руководитель": "к.э.н., доцент кафедры бухгалтерского учёта и аудита Павлова Т.А.",
         }
     )
-    print(*result.items(), sep="\n")
-    print("{Научный руководитель.text}".format(**result))
+    print(*test_result.items(), sep="\n")
+    print("%({Научный руководитель})s" % {key: value.text for key, value in test_result.items()})
