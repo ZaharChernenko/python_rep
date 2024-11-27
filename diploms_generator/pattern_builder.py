@@ -17,7 +17,14 @@ class PatternBuilderException(Exception):
 
 
 class PatternBuilder:
-    def __init__(self, pattern: list[dict]):
+    def __init__(self, file_path: str):
+        with open(file_path) as fin:
+            pattern: list[dict] = json.load(fin)
+        for el in pattern:
+            if el.get("текст", None) is None and el.get("зависит от", None) is None:
+                raise PatternBuilderException(f'В объекте паттерна нет ни поля "текст", ни поля "зависит от"\n {el}')
+            if el.get("тип", None) is None:
+                raise PatternBuilderException(f'В объекте паттерна нет поля "тип"')
         self._pattern: list[dict] = pattern
         self._excel_isolator: re.Pattern = re.compile(r"\[\[((?:\w+\s*)+)\]\]")
 
@@ -26,12 +33,7 @@ class PatternBuilder:
         for el in self._pattern:
             text: Optional[str] = el.get("текст", None)
             if text is None:
-                try:
-                    depends_on: str = el["зависит от"]
-                except KeyError:
-                    raise PatternBuilderException(
-                        f'В объекте паттерна нет ни поля "текст", ни поля "зависит от"\n {el}'
-                    )
+                depends_on: str = el["зависит от"]
                 try:
                     value = source_row[depends_on]
                 except KeyError:
@@ -46,10 +48,7 @@ class PatternBuilder:
             except KeyError as e:
                 raise PatternBuilderException(f"В excel таблице нет поля {e}")
 
-            try:
-                type_of_text: str = el["тип"]
-            except KeyError:
-                raise PatternBuilderException(f'В объекте паттерна нет поля "тип"')
+            type_of_text: str = el["тип"]
 
             result[type_of_text] = TextData(
                 text=text,
@@ -63,9 +62,7 @@ class PatternBuilder:
 
 
 if __name__ == "__main__":
-    with open("pattern.json") as fin:
-        test_pattern = json.load(fin)
-    test_builder = PatternBuilder(test_pattern)
+    test_builder = PatternBuilder("pattern.json")
     result: dict[str, TextData] = test_builder(
         {
             "Пол": "м",
