@@ -21,7 +21,10 @@ class PatternBuilderException(Exception):
 class PatternBuilder:
     def __init__(self, file_path: str):
         with open(file_path, encoding="utf-8") as fin:
-            pattern: list[dict] = json.load(fin)
+            try:
+                pattern: list[dict] = json.load(fin)
+            except json.JSONDecodeError:
+                raise PatternBuilderException(f"Файл {file_path} поврежден")
         for el in pattern:
             if el.get("текст", None) is None and el.get("зависит от", None) is None:
                 raise PatternBuilderException(f'В объекте паттерна нет ни поля "текст", ни поля "зависит от"\n {el}')
