@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from model import DiplomsGeneratorModel, PatternBuilderException
+from ui.image import ICON
 from ui.ui_objects import (
     DragAndDropFrame,
     DragAndDropFrameLabelsText,
@@ -24,6 +25,7 @@ class MainWindowUI(object):
             "    border-radius: 10px;\n"
             "}"
         )
+
         self.centralwidget = QtWidgets.QWidget(main_window)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -100,10 +102,18 @@ class MainWindowUI(object):
         QtWidgets.QMessageBox.information(self.centralwidget, "Операция завершена", "Шаблоны сгенерированы")
 
 
+def setIcon(app: QtWidgets.QApplication):
+    image = QtGui.QImage.fromData(QtCore.QByteArray(ICON))
+    pixmap = QtGui.QPixmap.fromImage(image)
+    app.setWindowIcon(QtGui.QIcon(pixmap))
+
+
 if __name__ == "__main__":
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
+    setIcon(app)
+
     main_window = QtWidgets.QMainWindow()
     MainWindowUI().setupUi(main_window)
     main_window.show()
