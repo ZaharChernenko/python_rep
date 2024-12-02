@@ -11,6 +11,7 @@ class TextData(NamedTuple):
     font_color: RGBColor
     is_bold: bool
     is_italic: bool
+    line_spacing: Optional[float] = None
 
 
 class PatternBuilderException(Exception):
@@ -61,13 +62,14 @@ class PatternBuilder:
                 font_color=RGBColor(*el.get("цвет шрифта", (0, 0, 0))),
                 is_bold=el.get("жирный", False),
                 is_italic=el.get("курсивный", False),
+                line_spacing=el.get("межстрочный интервал", None),
             )
 
         return result
 
 
 if __name__ == "__main__":
-    test_builder = PatternBuilder("tests/pattern.json")
+    test_builder = PatternBuilder("../tests/pattern.json")
     test_result: dict[str, TextData] = test_builder(
         {
             "Пол": "м",
@@ -75,10 +77,11 @@ if __name__ == "__main__":
             "Группа": "2-МД-21",
             "Номинация": "Лучший доклад",
             "Дата": "26 ноября 2024",
-            "ФИО в дательном падеже": "Иванову Сергею Викторовичу",
-            "Тема доклада": "Инновации в налогообложении",
-            "Научный руководитель": "к.э.н., доцент кафедры бухгалтерского учёта и аудита Павлова Т.А.",
+            "Фамилия": "Иванову",
+            "Имя": "Сергею",
+            "ТемаДоклада": "Инновации в налогообложении",
+            "НаучныйРуководитель": "к.э.н., доцент кафедры бухгалтерского учёта и аудита Павлова Т.А.",
         }
     )
     print(*test_result.items(), sep="\n")
-    print("%({Научный руководитель})s" % {key: value.text for key, value in test_result.items()})
+    print("%({НаучныйРуководитель})s" % {key: value.text for key, value in test_result.items()})

@@ -1,7 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from excel_reader import ExcelReader
-from pattern_builder import PatternBuilder, PatternBuilderException
+from model import DiplomsGeneratorModel, PatternBuilderException
 from ui.ui_objects import (
     DragAndDropFrame,
     DragAndDropFrameLabelsText,
@@ -10,14 +9,13 @@ from ui.ui_objects import (
     ExtensionValidator,
     ValidExtensions,
 )
-from word import fillTemplate
 
 
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(640, 346)
-        MainWindow.setStyleSheet(
+class MainWindowUI(object):
+    def setupUi(self, main_window: QtWidgets.QMainWindow):
+        main_window.setObjectName("MainWindow")
+        main_window.resize(640, 346)
+        main_window.setStyleSheet(
             "#centralwidget {\n"
             "    background-color: #1f232a;\n"
             "}\n"
@@ -26,7 +24,7 @@ class Ui_MainWindow(object):
             "    border-radius: 10px;\n"
             "}"
         )
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget = QtWidgets.QWidget(main_window)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -61,11 +59,6 @@ class Ui_MainWindow(object):
         )
         self.verticalLayout.addWidget(self.json_field)
 
-        self.progress_bar = QtWidgets.QProgressBar(self.centralwidget)
-        self.progress_bar.setProperty("value", 0)
-        self.progress_bar.setObjectName("progress_bar")
-        self.verticalLayout.addWidget(self.progress_bar)
-
         self.generate_btn = QtWidgets.QPushButton(self.centralwidget)
         self.generate_btn.setMinimumSize(QtCore.QSize(0, 50))
         self.generate_btn.setObjectName("generate_btn")
@@ -74,9 +67,9 @@ class Ui_MainWindow(object):
         self.generate_btn.clicked.connect(self.handleClickEvent)
         self.verticalLayout.addWidget(self.generate_btn)
 
-        MainWindow.setCentralWidget(self.centralwidget)
-        MainWindow.setWindowTitle("Генератор сертификатов")
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        main_window.setCentralWidget(self.centralwidget)
+        main_window.setWindowTitle("Генератор сертификатов")
+        QtCore.QMetaObject.connectSlotsByName(main_window)
 
     def handleDropEvent(self):
         if self.checkAllFilesDropped():
@@ -91,30 +84,27 @@ class Ui_MainWindow(object):
 
     def handleClickEvent(self):
         try:
-            pattern_builder: PatternBuilder = PatternBuilder(self.json_field.getFilePath())
+            diploms_generator_model: DiplomsGeneratorModel = DiplomsGeneratorModel(
+                template_file_path=self.word_field.getFilePath(),
+                excel_file_path=self.excel_field.getFilePath(),
+                pattern_file_path=self.json_field.getFilePath(),
+            )
         except PatternBuilderException as e:
             QtWidgets.QMessageBox.critical(self.centralwidget, "Ошибка", str(e))
             return
-
-        excel_reader: ExcelReader = ExcelReader(self.excel_field.getFilePath())
-
         try:
-            for step, el in enumerate(excel_reader, start=2):
-                fillTemplate(pattern_builder(el), self.word_field.getFilePath(), "output")
-                self.progress_bar.setProperty("value", step / len(excel_reader) * 100)
+            diploms_generator_model()
         except PatternBuilderException as e:
             QtWidgets.QMessageBox.critical(self.centralwidget, "Ошибка", str(e))
             return
         QtWidgets.QMessageBox.information(self.centralwidget, "Операция завершена", "Шаблоны сгенерированы")
-        self.progress_bar.setProperty("value", 0)
 
 
 if __name__ == "__main__":
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
+    main_window = QtWidgets.QMainWindow()
+    MainWindowUI().setupUi(main_window)
+    main_window.show()
     sys.exit(app.exec_())
