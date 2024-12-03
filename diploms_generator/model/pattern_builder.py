@@ -24,13 +24,13 @@ class PatternBuilder:
         with open(file_path, encoding="utf-8") as fin:
             try:
                 pattern: list[dict] = json.load(fin)
-            except json.JSONDecodeError:
-                raise PatternBuilderException(f"Файл {file_path} поврежден")
+            except json.JSONDecodeError as e:
+                raise PatternBuilderException(f"Файл {file_path} поврежден") from e
         for el in pattern:
             if el.get("текст", None) is None and el.get("зависит от", None) is None:
-                raise PatternBuilderException(f'В объекте паттерна нет ни поля "текст", ни поля "зависит от"\n {el}')
+                raise PatternBuilderException(f'В объекте паттерна нет ни поля "текст", ни поля "зависит от"\n{el}')
             if el.get("тип", None) is None:
-                raise PatternBuilderException(f'В объекте паттерна нет поля "тип"')
+                raise PatternBuilderException(f'В объекте паттерна нет поля "тип"\n{el}')
         self._pattern: list[dict] = pattern
         self._excel_isolator: re.Pattern = re.compile(r"\[\[((?:\w+\s*)+)\]\]")
 
@@ -42,17 +42,17 @@ class PatternBuilder:
                 depends_on: str = el["зависит от"]
                 try:
                     value = source_row[depends_on]
-                except KeyError:
-                    raise PatternBuilderException(f"В excel таблице нет поля {depends_on}")
+                except KeyError as e:
+                    raise PatternBuilderException(f"В excel таблице нет поля {depends_on}") from e
                 try:
                     text = el[value]
-                except KeyError:
-                    raise PatternBuilderException(f"В объекте паттерна нет поля {value}")
+                except KeyError as e:
+                    raise PatternBuilderException(f"В объекте паттерна нет поля {value}") from e
             text = self._excel_isolator.sub(lambda match_el: f"{{{match_el.group(1)}}}", text, count=0)
             try:
                 text = text.format(**source_row)
             except KeyError as e:
-                raise PatternBuilderException(f"В excel таблице нет поля {e}")
+                raise PatternBuilderException(f"В excel таблице нет поля {e}") from e
 
             type_of_text: str = el["тип"]
 
