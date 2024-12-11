@@ -1,6 +1,8 @@
 import os
 import time
 
+from docx2pdf import convert
+
 from .excel_reader import ExcelReader
 from .pattern_builder import PatternBuilder
 from .word_filler import WordFiller, WordFillerOutput
@@ -19,3 +21,4 @@ class DiplomsGeneratorModel:
             result: WordFillerOutput = self.word_filler((self.pattern_builder(row)))
             result.document.save(os.path.join(output_dir, result.file_name))
             print(f"Сертификат {result.file_name} сохранён в {output_dir}")
+        convert(output_dir)
