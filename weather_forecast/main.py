@@ -1,6 +1,7 @@
-from WeatherWindow import WeatherWindow
-from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication, QMainWindow
+
+from WeatherWindow import WeatherWindow
 
 if __name__ == "__main__":
     import sys
